@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">NewsApp</string>
+
+    <string name="api_key">c518b268842048389bab74bf37ade925</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="cat1">TopHeadlines</string>
+    <string name="cat2">Entertainment</string>
+    <string name="cat3">General</string>
+</resources>
