@@ -2,16 +2,16 @@ package com.nitish.newsapp.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
-import android.util.Log
+import android.view.View
 import com.foodapp.foodbuddies.BaseActivity
 import com.nitish.newsapp.fragments.ArticlesItemFragment
 import com.nitish.newsapp.fragments.BlankFragment
 import com.nitish.newsapp.model.ArticlesItem
-import com.nitish.newsapp.model.NewsResponse
 import com.nitish.newsapp.presenter.MainActivityPresenter
 import com.nitish.newsapp.view.MainActivityView
 import kotlinx.android.synthetic.main.activity_main.*
@@ -36,15 +36,28 @@ class MainActivity : BaseActivity(),
         presenter = MainActivityPresenter()
         presenter.setView(this)
         viewPager.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tablayout))
-
         for (i in categoryList.indices) {
             tablayout.addTab(tablayout.newTab().setText(categoryList[i]))
         }
 
+        tablayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener{
+            override fun onTabReselected(p0: TabLayout.Tab?) {
+            }
+
+            override fun onTabUnselected(p0: TabLayout.Tab?) {
+            }
+
+            override fun onTabSelected(p0: TabLayout.Tab?) {
+                val tab = p0.apply {  }?: return
+                viewPager.currentItem = tab.position
+            }
+
+        })
+        pbLoading.visibility = View.VISIBLE
         presenter.loadNews1()
     }
 
-
+    //region PageAdapter inflating the categories
     inner class PageAdapter internal constructor(fm: FragmentManager) :
         FragmentPagerAdapter(fm) {
 
@@ -57,28 +70,29 @@ class MainActivity : BaseActivity(),
             return categoryList.size
         }
     }
+    //endregion
 
-
+    //region handling the article item click
     override fun onListFragmentInteraction(item: ArticlesItem) {
         val detailActivityIntent = Intent(this, ArticleDetailActivity::class.java)
         detailActivityIntent.putExtra("item", item)
         startActivity(detailActivityIntent)
     }
+    //endregion
 
-    //region View Callback Functions
-    override fun onNewsClick() {
-    }
+    //region presenter callback method
+    override fun onLoadComplete(articleMap: MutableMap<Int, List<ArticlesItem?>>) {
 
-
-    override fun addNews(response: NewsResponse, category: Int) {
-        val articles = response.articles.apply { } ?: return
-        Log.d("" + category, "" + articles.size)
-        categoryMap.put(category, articles)
-    }
-
-    override fun onLoadComplete() {
+        this.categoryMap = articleMap
         val pageAdapter = PageAdapter(supportFragmentManager)
-        viewPager.adapter = pageAdapter
+
+        val handler = Handler()
+        handler.postDelayed({
+            //Do something after 100ms
+            pbLoading.visibility = View.GONE
+            viewPager.adapter = pageAdapter
+        }, 2000)
+
     }
     //endregion
 }

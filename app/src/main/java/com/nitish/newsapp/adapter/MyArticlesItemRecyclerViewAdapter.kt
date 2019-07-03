@@ -8,18 +8,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import com.bumptech.glide.Glide
 import com.nitish.newsapp.R
-import com.nitish.newsapp.fragments.ArticlesItemFragment.OnListFragmentInteractionListener
 import com.nitish.newsapp.model.ArticlesItem
 import com.nitish.newsapp.ui.MainActivity
-import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_articlesitem.view.*
 
-/**
- * [RecyclerView.Adapter] that can display a [DummyItem] and makes a call to the
- * specified [OnListFragmentInteractionListener].
- * TODO: Replace the implementation with code for your data type.
- */
 class MyArticlesItemRecyclerViewAdapter(
     private val context: Context,
     private val mValues: List<ArticlesItem?>
@@ -40,8 +34,12 @@ class MyArticlesItemRecyclerViewAdapter(
         holder.tvTime.text = item1.publishedAt
 
         val urlImage1 = item1.urlToImage.apply { } ?: ""
-        if (urlImage1.isNotEmpty())
-            Picasso.with(context).load(urlImage1).into(holder.ivNewsImage)
+        if (urlImage1.isNotEmpty()) {
+            Glide.with(holder.ivNewsImage)
+                .load(urlImage1)
+                .placeholder(R.drawable.ic_launcher_foreground)
+                .into(holder.ivNewsImage)
+        }
 
         holder.mView.setOnClickListener(object : View.OnClickListener{
             override fun onClick(p0: View?) {

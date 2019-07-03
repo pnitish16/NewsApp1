@@ -12,11 +12,10 @@ import io.reactivex.schedulers.Schedulers
 
 class MainActivityPresenter {
 
-    private val TAG = javaClass.simpleName
     private lateinit var view: MainActivityView
-    private var headlines: List<ArticlesItem?>? = emptyList()
+    private var categoryMap = mutableMapOf<Int, List<ArticlesItem?>>()
 
-    val categoryList = listOf("Top Headlines", "Business", "Entertainment", "General", "Health", "Science")
+    val categoryList = listOf("", "Business", "Entertainment", "General", "Health", "Science")
 
     fun setView(view: MainActivityView) {
         this.view = view
@@ -24,33 +23,34 @@ class MainActivityPresenter {
 
     @SuppressLint("CheckResult")
     fun loadNews1() {
+        categoryMap.clear()
         val service = ServiceFactory.createRetrofitService(NewsCatApi::class.java, NewsApi.SERVICE_ENDPOINT)
         for ((count, category) in categoryList.withIndex()) {
-            if (category == "Top Headlines") {
+            /*if (category == "") {
                 service.getNews()
-                    .subscribeOn(Schedulers.newThread())
+                    .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
-                        { response -> view.addNews(response, count) },
+                        { response -> categoryMap.put(count,response.articles!!) },
                         { throwable -> Log.d("error", throwable.message!!) },
                         {
                             if ((categoryList.size - 1) == count) {
-                                view.onLoadComplete()
+                                view.onLoadComplete(categoryMap)
                             }
                         })
-            } else {
+            } else {*/
                 service.getCatNews(category)
-                    .subscribeOn(Schedulers.newThread())
+                    .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
-                        { response -> view.addNews(response, count) },
+                        { response -> categoryMap.put(count,response.articles!!) },
                         { throwable -> Log.d("error", throwable.message!!) },
                         {
                             if ((categoryList.size - 1) == count) {
-                                view.onLoadComplete()
+                                view.onLoadComplete(categoryMap)
                             }
                         })
-            }
+//            }
         }
     }
 

@@ -1,9 +1,7 @@
 package com.nitish.newsapp.view
 
-import com.nitish.newsapp.model.NewsResponse
+import com.nitish.newsapp.model.ArticlesItem
 
 interface MainActivityView {
-    fun onNewsClick()
-    fun addNews(response: NewsResponse, category : Int)
-    fun onLoadComplete()
+    fun onLoadComplete(articleMap : MutableMap<Int, List<ArticlesItem?>>)
 }
