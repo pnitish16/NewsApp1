@@ -53,6 +53,10 @@ class MainActivity : BaseActivity(),
             }
 
         })
+        loadArticles()
+    }
+
+    fun loadArticles() {
         pbLoading.visibility = View.VISIBLE
         presenter.loadNews1()
     }

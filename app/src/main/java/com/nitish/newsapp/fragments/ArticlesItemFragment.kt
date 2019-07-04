@@ -3,15 +3,17 @@ package com.nitish.newsapp.fragments
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.nitish.newsapp.R
 import com.nitish.newsapp.adapter.MyArticlesItemRecyclerViewAdapter
 import com.nitish.newsapp.model.ArticlesItem
-
+import com.nitish.newsapp.ui.MainActivity
 
 
 /**
@@ -24,6 +26,8 @@ class ArticlesItemFragment : Fragment() {
     // TODO: Customize parameters
     private var columnCount = 1
     private lateinit var items: List<ArticlesItem?>
+    private lateinit var rvArticles: RecyclerView
+    private lateinit var swipeLayout : SwipeRefreshLayout
 
     private var listener: OnListFragmentInteractionListener? = null
 
@@ -40,18 +44,24 @@ class ArticlesItemFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(com.nitish.newsapp.R.layout.fragment_articlesitem_list, container, false)
+        val view = inflater.inflate(R.layout.fragment_articlesitem_list, container, false)
 
         // Set the adapter
-        if (view is RecyclerView) {
-            with(view) {
-                layoutManager = when {
-                    columnCount <= 1 -> LinearLayoutManager(context)
-                    else -> GridLayoutManager(context, columnCount)
-                }
-                adapter = MyArticlesItemRecyclerViewAdapter(activity!!, items)
+        swipeLayout = view.findViewById(R.id.pullToRefresh)
+        rvArticles = view.findViewById(R.id.rvArticles)
+        with(rvArticles) {
+            layoutManager = when {
+                columnCount <= 1 -> LinearLayoutManager(context)
+                else -> GridLayoutManager(context, columnCount)
             }
+            adapter = MyArticlesItemRecyclerViewAdapter(activity!!, items)
         }
+
+        swipeLayout.setOnRefreshListener {
+            (activity as MainActivity).loadArticles()
+            swipeLayout.isRefreshing = false
+        }
+
         return view
     }
 
@@ -60,7 +70,7 @@ class ArticlesItemFragment : Fragment() {
         if (context is OnListFragmentInteractionListener) {
             listener = context
         } else {
-            throw RuntimeException(context.toString() + " must implement OnListFragmentInteractionListener")
+            throw RuntimeException("$context must implement OnListFragmentInteractionListener")
         }
     }
 
