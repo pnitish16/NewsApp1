@@ -14,6 +14,9 @@ interface NewsCatApi {
     @GET("top-headlines?country=us&apiKey=c518b268842048389bab74bf37ade925")
     fun getNews(): Observable<NewsResponse>
 
+    @GET("top-headlines?country=us&apiKey=c518b268842048389bab74bf37ade925")
+    fun getCatNewsMore(@Query("category") categoryName: String, @Query("page") page : Int): Observable<NewsResponse>
+
     companion object {
         val SERVICE_ENDPOINT = "https://newsapi.org/v2/"
 

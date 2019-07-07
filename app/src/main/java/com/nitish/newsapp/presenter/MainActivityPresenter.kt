@@ -14,6 +14,7 @@ class MainActivityPresenter {
 
     private lateinit var view: MainActivityView
     private var categoryMap = mutableMapOf<Int, List<ArticlesItem?>>()
+    private var totalListPositions = mutableMapOf<Int, Int>()
 
     val categoryList = listOf("", "Business", "Entertainment", "General", "Health", "Science")
 
@@ -26,88 +27,30 @@ class MainActivityPresenter {
         categoryMap.clear()
         val service = ServiceFactory.createRetrofitService(NewsCatApi::class.java, NewsApi.SERVICE_ENDPOINT)
         for ((count, category) in categoryList.withIndex()) {
-            /*if (category == "") {
-                service.getNews()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                        { response -> categoryMap.put(count,response.articles!!) },
-                        { throwable -> Log.d("error", throwable.message!!) },
-                        {
-                            if ((categoryList.size - 1) == count) {
-                                view.onLoadComplete(categoryMap)
-                            }
-                        })
-            } else {*/
-                service.getCatNews(category)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                        { response -> categoryMap.put(count,response.articles!!) },
-                        { throwable -> Log.d("error", throwable.message!!) },
-                        {
-                            if ((categoryList.size - 1) == count) {
-                                view.onLoadComplete(categoryMap)
-                            }
-                        })
-//            }
+            service.getCatNews(category)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    { response -> categoryMap[count] = response.articles!! },
+                    { throwable -> Log.d("error", throwable.message!!) },
+                    {
+                        if ((categoryList.size - 1) == count) {
+                            view.onLoadComplete(categoryMap, totalListPositions)
+                        }
+                    })
         }
     }
 
-    /*private fun getObservable1(category: String): Observable<NewsResponse> {
+
+    @SuppressLint("CheckResult")
+    fun loadNewsMore(page: Int,categoryPosition: Int) {
         val service = ServiceFactory.createRetrofitService(NewsCatApi::class.java, NewsApi.SERVICE_ENDPOINT)
-        return service.getCatNews(category)
-            .subscribeOn(Schedulers.newThread())
+        service.getCatNewsMore(categoryList[categoryPosition], page)
+            .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { response -> view.onLoadMore(response.articles!!) },
+                { throwable -> Log.d("error", throwable.message!!) }
+            )
     }
-
-    private fun getObservable(): Observable<NewsResponse> {
-        val service = ServiceFactory.createRetrofitService(NewsApi::class.java, NewsApi.SERVICE_ENDPOINT)
-        return service.getTopHeadlines()
-            .subscribeOn(Schedulers.newThread())
-            .observeOn(AndroidSchedulers.mainThread())
-    }
-
-    private fun getObserver(): DisposableObserver<NewsResponse> {
-        return object : DisposableObserver<NewsResponse>() {
-
-            override fun onNext(movieResponse: NewsResponse) {
-                Log.d(TAG, "OnNext" + movieResponse.status)
-                headlines = movieResponse.articles!!
-            }
-
-            override fun onError(e: Throwable) {
-                Log.d(TAG, "Error$e")
-                e.printStackTrace()
-            }
-
-            override fun onComplete() {
-                Log.d(TAG, "Completed")
-                view.showNews(headlines!!)
-            }
-        }
-    }
-
-
-    private fun getObserver1(category: String): DisposableObserver<NewsResponse> {
-        return object : DisposableObserver<NewsResponse>() {
-
-            override fun onNext(movieResponse: NewsResponse) {
-                Log.d(TAG, "OnNext" + movieResponse.status)
-                headlines = movieResponse.articles!!
-            }
-
-            override fun onError(e: Throwable) {
-                Log.d(TAG, "Error$e")
-                e.printStackTrace()
-            }
-
-            override fun onComplete() {
-                Log.d(TAG, "Completed")
-                view.showCatNews(headlines!!, category)
-            }
-        }
-    }*/
-
-
 }
